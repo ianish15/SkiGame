@@ -1,0 +1,20 @@
+import 'dart:math';
+
+const double segLength = 5.0;
+const double drawDist = 180.0;
+final int numSegments = (drawDist / segLength).ceil() + 5;
+const double cameraHeight = 4.0;
+final double cameraDepth = 1.0 / tan((80.0 / 2.0) * pi / 180.0);
+const double horizon = 0.38;
+const int roadStrips = 120;
+const int snowflakeCount = 80;
+const int crashParticleCount = 35;
+const double turnRate = 1.8;
+const double initialBaseSpeed = 28.0;
+const double maxSpeedGain = 42.0;
+const double initialTrailWidth = 1.0;
+const double minTrailWidth = 0.55;
+const double initialObstacleRate = 18.0;
+const double minObstacleRate = 8.0;
+const double difficultyDistance = 15000.0;
+const double initialObstacleZ = 30.0;
