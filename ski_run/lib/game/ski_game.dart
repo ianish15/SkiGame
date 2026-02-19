@@ -22,7 +22,7 @@ import '../services/storage_service.dart';
 
 enum GameState { menu, playing, dead }
 
-class SkiGame extends FlameGame with TapDetector, PanDetector {
+class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
   // State
   GameState state = GameState.menu;
   final Player player = Player();
@@ -68,9 +68,9 @@ class SkiGame extends FlameGame with TapDetector, PanDetector {
   int? _activePointer;
 
   @override
-  void onTapDown(TapDownInfo info) {
-    final x = info.eventPosition.global.x;
-    final y = info.eventPosition.global.y;
+  void onTapDown(TapDownEvent event) {
+    final x = event.canvasPosition.x;
+    final y = event.canvasPosition.y;
 
     if (state == GameState.playing) {
       final mid = size.x / 2;
@@ -84,31 +84,31 @@ class SkiGame extends FlameGame with TapDetector, PanDetector {
   }
 
   @override
-  void onTapUp(TapUpInfo info) {
+  void onTapUp(TapUpEvent event) {
     player.turnDir = 0;
     player.touchSide = 0;
   }
 
   @override
-  void onTapCancel() {
+  void onTapCancel(TapCancelEvent event) {
     player.turnDir = 0;
     player.touchSide = 0;
   }
 
   @override
-  void onPanStart(DragStartInfo info) {
+  void onDragStart(DragStartEvent event) {
     if (state == GameState.playing) {
       final mid = size.x / 2;
-      player.touchSide = info.eventPosition.global.x < mid ? -1 : 1;
+      player.touchSide = event.canvasPosition.x < mid ? -1 : 1;
       player.turnDir = player.touchSide;
     }
   }
 
   @override
-  void onPanUpdate(DragUpdateInfo info) {
+  void onDragUpdate(DragUpdateEvent event) {
     if (state == GameState.playing) {
       final mid = size.x / 2;
-      final newSide = info.eventPosition.global.x < mid ? -1 : 1;
+      final newSide = event.canvasPosition.x < mid ? -1 : 1;
       if (newSide != player.touchSide) {
         player.touchSide = newSide;
         player.turnDir = newSide;
@@ -117,13 +117,13 @@ class SkiGame extends FlameGame with TapDetector, PanDetector {
   }
 
   @override
-  void onPanEnd(DragEndInfo info) {
+  void onDragEnd(DragEndEvent event) {
     player.turnDir = 0;
     player.touchSide = 0;
   }
 
   @override
-  void onPanCancel() {
+  void onDragCancel(DragCancelEvent event) {
     player.turnDir = 0;
     player.touchSide = 0;
   }
