@@ -108,7 +108,7 @@ class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
   void onDragUpdate(DragUpdateEvent event) {
     if (state == GameState.playing) {
       final mid = size.x / 2;
-      final newSide = event.canvasPosition.x < mid ? -1 : 1;
+      final newSide = event.localPosition.x < mid ? -1 : 1;
       if (newSide != player.touchSide) {
         player.touchSide = newSide;
         player.turnDir = newSide;
