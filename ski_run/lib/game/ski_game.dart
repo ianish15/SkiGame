@@ -298,7 +298,7 @@ class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
     }
 
     // Sky
-    _sky.render(canvas, w, h);
+    _sky.render(canvas, w, h, distance: distance);
 
     // Road
     _road.render(canvas, w, h, player.x, difficulty.trailWidth, segments);
@@ -338,6 +338,17 @@ class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
 
     _particles.drawSnowflakes(canvas);
     _particles.drawParticles(canvas);
+
+    // Spray mist cloud when turning
+    if (state == GameState.playing && player.turnDir != 0 && player.speed > 5) {
+      _particles.drawSprayMist(
+        canvas,
+        w / 2 - player.turnDir * 25,
+        h * 0.89,
+        -player.turnDir.toDouble(),
+        player.speed,
+      );
+    }
 
     // Skier POV
     _skier.render(canvas, w, h, player.turnDir);

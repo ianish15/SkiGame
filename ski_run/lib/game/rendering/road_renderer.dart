@@ -49,17 +49,6 @@ class RoadRenderer {
         _paint,
       );
 
-      // Trail edge markers
-      _paint.color = GameColors.edgeMarker;
-      canvas.drawRect(
-        Rect.fromLTWH(centerX - halfTrail - 2, screenY, 3 * perspective + 1, stripH),
-        _paint,
-      );
-      canvas.drawRect(
-        Rect.fromLTWH(centerX + halfTrail - 1, screenY, 3 * perspective + 1, stripH),
-        _paint,
-      );
-
       // Center dashes (periodic)
       if ((depth ~/ 6) % 3 == 0) {
         _paint.color = GameColors.centerDash;
@@ -68,6 +57,63 @@ class RoadRenderer {
           _paint,
         );
       }
+
+      // Boundary trees at regular depth intervals
+      final treeSpacing = 10.0;
+      final depthMod = depth % treeSpacing;
+      final stripDepthRange = drawDist / roadStrips;
+      if (depthMod < stripDepthRange && perspective > 0.08) {
+        final treeScale = perspective * 18;
+        if (treeScale > 2.0) {
+          _drawBoundaryTree(canvas, centerX - halfTrail - treeScale * 1.0, screenY, treeScale);
+          _drawBoundaryTree(canvas, centerX + halfTrail + treeScale * 1.0, screenY, treeScale);
+        }
+      }
     }
+  }
+
+  void _drawBoundaryTree(Canvas canvas, double x, double y, double scale) {
+    if (scale < 1.5) return;
+
+    // Shadow
+    _paint.color = const Color(0x14000000);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(x, y),
+        width: scale * 0.8,
+        height: scale * 0.2,
+      ),
+      _paint,
+    );
+
+    // Trunk
+    _paint.color = const Color(0xFF4A3728);
+    canvas.drawRect(
+      Rect.fromLTWH(x - scale * 0.06, y - scale * 0.5, scale * 0.12, scale * 0.5),
+      _paint,
+    );
+
+    // Foliage — 3 layers
+    const foliageColors = [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)];
+    for (int i = 0; i < 3; i++) {
+      _paint.color = foliageColors[i];
+      final ty = y - scale * (1.1 - i * 0.25);
+      final bw = scale * (0.28 + i * 0.04);
+      final path = Path()
+        ..moveTo(x, ty)
+        ..lineTo(x - bw, ty + scale * 0.35)
+        ..lineTo(x + bw, ty + scale * 0.35)
+        ..close();
+      canvas.drawPath(path, _paint);
+    }
+
+    // Snow cap
+    _paint.color = const Color(0xCCFFFFFF);
+    final snowPath = Path()
+      ..moveTo(x, y - scale * 1.15)
+      ..lineTo(x - scale * 0.14, y - scale * 0.95)
+      ..lineTo(x + scale * 0.14, y - scale * 0.95)
+      ..close();
+    canvas.drawPath(snowPath, _paint);
   }
 }

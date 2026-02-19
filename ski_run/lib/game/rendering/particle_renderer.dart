@@ -82,16 +82,18 @@ class ParticleSystem {
   }
 
   void spawnSpray(double screenX, double screenY, double dir) {
-    for (int i = 0; i < 2; i++) {
-      final life = 0.3 + _rng.nextDouble() * 0.2;
+    for (int i = 0; i < 5; i++) {
+      final life = 0.25 + _rng.nextDouble() * 0.35;
+      final speed = 1.5 + _rng.nextDouble() * 3;
+      final angle = (_rng.nextDouble() - 0.5) * 0.8;
       particles.add(Particle(
-        x: screenX,
-        y: screenY,
-        vx: (_rng.nextDouble() - 0.5) * 2 + dir * 2,
-        vy: -(_rng.nextDouble() * 2 + 1),
+        x: screenX + (_rng.nextDouble() - 0.5) * 12,
+        y: screenY + _rng.nextDouble() * 4,
+        vx: cos(angle) * speed + dir * 2.5,
+        vy: -(sin(angle).abs() * speed + 1),
         life: life,
         maxLife: life,
-        r: _rng.nextDouble() * 2.5 + 1,
+        r: _rng.nextDouble() * 3.5 + 1.5,
       ));
     }
   }
@@ -132,6 +134,32 @@ class ParticleSystem {
       _paint.color = Color.fromRGBO(255, 255, 255, a * 0.9);
       canvas.drawCircle(Offset(p.x, p.y), p.r, _paint);
     }
+  }
+
+  /// Draw a translucent mist cloud at the spray origin for a richer spray look.
+  void drawSprayMist(Canvas canvas, double x, double y, double dir, double speed) {
+    if (speed <= 5) return;
+    final intensity = ((speed - 5) / 60).clamp(0.0, 1.0);
+    final a = intensity * 0.15;
+    _paint.color = Color.fromRGBO(255, 255, 255, a);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(x + dir * 8, y - 5),
+        width: 35 + intensity * 25,
+        height: 16 + intensity * 8,
+      ),
+      _paint,
+    );
+    // Smaller secondary puff
+    _paint.color = Color.fromRGBO(255, 255, 255, a * 0.6);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(x + dir * 20, y - 10),
+        width: 20 + intensity * 15,
+        height: 10 + intensity * 5,
+      ),
+      _paint,
+    );
   }
 
   void clearParticles() {
