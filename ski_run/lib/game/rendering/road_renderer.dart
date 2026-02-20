@@ -63,10 +63,11 @@ class RoadRenderer {
       final depthMod = depth % treeSpacing;
       final stripDepthRange = drawDist / roadStrips;
       if (depthMod < stripDepthRange && perspective > 0.08) {
-        final treeScale = perspective * 50;
-        if (treeScale > 4.0) {
-          _drawBoundaryTree(canvas, centerX - halfTrail - treeScale * 0.7, screenY, treeScale);
-          _drawBoundaryTree(canvas, centerX + halfTrail + treeScale * 0.7, screenY, treeScale);
+        // Scale trees relative to screen width so they're visible at all screen sizes
+        final treeScale = (perspective * w * 0.09).clamp(0.0, w * 0.12);
+        if (treeScale > 6.0) {
+          _drawBoundaryTree(canvas, centerX - halfTrail - treeScale * 0.6, screenY, treeScale);
+          _drawBoundaryTree(canvas, centerX + halfTrail + treeScale * 0.6, screenY, treeScale);
         }
       }
     }

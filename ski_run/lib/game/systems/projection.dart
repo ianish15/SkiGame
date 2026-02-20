@@ -61,7 +61,9 @@ ProjectedPoint? project(
   final roadH = screenH - horizY;
   final sy = horizY + roadH * (1 - t);
 
-  final sw = perspective * screenW * 0.5;
+  // Use original cameraDepth/relZ formula for SIZING so obstacles aren't giant.
+  // Road perspective is only used for correct positioning on the road surface.
+  final sw = cameraDepth / relZ * screenW * 0.5;
 
-  return ProjectedPoint(x: sx, y: sy, w: sw, scale: perspective);
+  return ProjectedPoint(x: sx, y: sy, w: sw, scale: cameraDepth / relZ);
 }
