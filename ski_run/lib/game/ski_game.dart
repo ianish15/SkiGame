@@ -647,9 +647,9 @@ class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
 
   void _drawStyledText(
     Canvas canvas, String text, double cx, double cy,
-    double fontSize, FontWeight weight, Color color,
-    {double letterSpacing = 0},
-  ) {
+    double fontSize, FontWeight weight, Color color, {
+    double letterSpacing = 0,
+  }) {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
