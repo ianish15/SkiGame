@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/painting.dart' show TextPainter, TextSpan, TextStyle;
 import '../../config/colors.dart';
+import '../components/obstacle.dart';
 
 class ObstacleRenderer {
   final Paint _paint = Paint();
@@ -139,12 +140,30 @@ class ObstacleRenderer {
     canvas.drawPath(nosePath, _paint);
   }
 
-  void drawGate(Canvas canvas, double x, double y, double s, bool passed) {
+  void drawGate(
+    Canvas canvas, double x, double y, double s, bool passed, {
+    GateSize gateSize = GateSize.medium,
+    int points = 300,
+  }) {
     final size = max(s * 0.8, 2.0);
-    final hw = size * 0.5;
+
+    // Gate width varies by size
+    final widthMul = switch (gateSize) {
+      GateSize.small => 0.5,
+      GateSize.medium => 1.0,
+      GateSize.large => 1.6,
+    };
+    final hw = size * 0.5 * widthMul;
+
+    // Gate color varies by size
+    final Color poleColorBase = switch (gateSize) {
+      GateSize.small => const Color(0xFFFFB300),  // gold
+      GateSize.medium => GameColors.gateRed,       // red
+      GateSize.large => const Color(0xFF42A5F5),   // blue
+    };
     final poleColor = passed
-        ? const Color(0x664CAF50) // rgba(76,175,80,0.4)
-        : GameColors.gateRed;
+        ? const Color(0x664CAF50)
+        : poleColorBase;
 
     // Poles
     _paint.color = poleColor;
@@ -158,9 +177,14 @@ class ObstacleRenderer {
     );
 
     // Banner
+    final Color bannerColorBase = switch (gateSize) {
+      GateSize.small => const Color(0x4DFFB300),
+      GateSize.medium => const Color(0x4DF44336),
+      GateSize.large => const Color(0x4D42A5F5),
+    };
     _paint.color = passed
-        ? const Color(0x334CAF50) // rgba(76,175,80,0.2)
-        : const Color(0x4DF44336); // rgba(244,67,54,0.3)
+        ? const Color(0x334CAF50)
+        : bannerColorBase;
     canvas.drawRect(
       Rect.fromLTWH(x - hw, y - size * 0.8, hw * 2, size * 0.15),
       _paint,
@@ -180,14 +204,29 @@ class ObstacleRenderer {
           _paint,
         );
       }
+
+      // Point value on banner
+      final fontSize = max(size * 0.15, 7.0);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: '+$points',
+          style: TextStyle(
+            color: const Color(0xDDFFFFFF),
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(x - tp.width / 2, y - size * 0.78 + (size * 0.15 - tp.height) / 2));
     }
 
     if (passed) {
-      // "+200" text
+      // Floating "+N" text
       final fontSize = max(size * 0.2, 8.0);
       final tp = TextPainter(
         text: TextSpan(
-          text: '+200',
+          text: '+$points',
           style: TextStyle(
             color: const Color(0xCC4CAF50),
             fontSize: fontSize,
