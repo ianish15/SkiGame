@@ -63,17 +63,17 @@ class RoadRenderer {
       final depthMod = depth % treeSpacing;
       final stripDepthRange = drawDist / roadStrips;
       if (depthMod < stripDepthRange && perspective > 0.08) {
-        final treeScale = perspective * 18;
-        if (treeScale > 2.0) {
-          _drawBoundaryTree(canvas, centerX - halfTrail - treeScale * 1.0, screenY, treeScale);
-          _drawBoundaryTree(canvas, centerX + halfTrail + treeScale * 1.0, screenY, treeScale);
+        final treeScale = perspective * 50;
+        if (treeScale > 4.0) {
+          _drawBoundaryTree(canvas, centerX - halfTrail - treeScale * 0.7, screenY, treeScale);
+          _drawBoundaryTree(canvas, centerX + halfTrail + treeScale * 0.7, screenY, treeScale);
         }
       }
     }
   }
 
   void _drawBoundaryTree(Canvas canvas, double x, double y, double scale) {
-    if (scale < 1.5) return;
+    if (scale < 4.0) return;
 
     // Shadow
     _paint.color = const Color(0x14000000);

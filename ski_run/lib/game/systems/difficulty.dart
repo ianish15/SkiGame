@@ -8,9 +8,9 @@ class DifficultyState {
 
   void update(double distance) {
     t = (distance / difficultyDistance).clamp(0.0, 1.0);
-    currentMaxSpeed = initialBaseSpeed + t * maxSpeedGain; // 28 -> 70
+    currentMaxSpeed = initialBaseSpeed + t * maxSpeedGain; // 18 -> 73
     trailWidth = initialTrailWidth - t * 0.45; // 1.0 -> 0.55
-    obstacleRate = initialObstacleRate - t * 10; // 18 -> 8
+    obstacleRate = initialObstacleRate - t * (initialObstacleRate - minObstacleRate); // 35 -> 6
   }
 
   String get label {

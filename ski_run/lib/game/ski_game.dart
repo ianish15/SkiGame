@@ -322,18 +322,8 @@ class SkiGame extends FlameGame with TapCallbacks, DragCallbacks {
         .toList()
       ..sort((a, b) => b.z.compareTo(a.z));
 
-    // Camera X with accumulated curve offset
-    double camX = player.x;
-    double cumulativeCurve = 0;
-    for (final seg in segments) {
-      if (seg.z >= distance && seg.z < distance + drawDist * 0.3) {
-        cumulativeCurve += seg.curve * 0.002;
-      }
-    }
-    camX -= cumulativeCurve;
-
     for (final ob in visible) {
-      final p = project(ob.lane, ob.z, distance, camX, w, h);
+      final p = project(ob.lane, ob.z, distance, player.x, w, h, segments);
       if (p == null || p.y < 0 || p.y > h) continue;
 
       final s = p.w * 2.0;

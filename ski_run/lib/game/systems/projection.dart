@@ -1,4 +1,5 @@
 import '../../config/constants.dart';
+import '../components/segment.dart';
 
 class ProjectedPoint {
   final double x;
@@ -14,27 +15,53 @@ class ProjectedPoint {
   });
 }
 
+/// Project an obstacle at (laneX, worldZ) onto screen coordinates,
+/// using the same perspective and curvature model as the road renderer
+/// so obstacles appear fixed on the road surface.
 ProjectedPoint? project(
   double laneX,
   double worldZ,
   double cameraZ,
-  double camX,
+  double playerX,
   double screenW,
   double screenH,
+  List<Segment> segments,
 ) {
   final relZ = worldZ - cameraZ;
   if (relZ <= 0.1) return null;
+  if (relZ > drawDist) return null;
 
-  final scale = cameraDepth / relZ;
-  final sx = screenW / 2 + (laneX - camX) * scale * screenW * 0.5;
-
-  // Place on road surface matching road renderer's depth-to-screen formula
+  // t: 0 = near player, 1 = far away — matches road renderer
   final t = ((relZ - 0.5) / drawDist).clamp(0.0, 1.0);
+  final depth = 0.5 + t * drawDist;
+  final perspective = 1 / (depth * 0.04 + 0.2);
+
+  // Compute cumulative curve from far to this depth, matching road renderer
+  // The road renderer iterates from i=roadStrips down to i=0, accumulating
+  // curve at each strip. We replicate that down to the obstacle's strip.
+  double cumulativeCurve = 0;
+  final obsStrip = (t * roadStrips).round();
+  for (int i = roadStrips; i >= obsStrip; i--) {
+    final stripT = i / roadStrips;
+    final segIdx = (stripT * (segments.length - 1)).floor();
+    final seg = segments[segIdx.clamp(0, segments.length - 1)];
+    cumulativeCurve += seg.curve * stripT * 0.3;
+  }
+
+  // Road center at this depth (same formula as road renderer)
+  final centerX = screenW / 2
+      - playerX * perspective * screenW * 0.5
+      + cumulativeCurve * perspective * 8;
+
+  // Obstacle offset from road center
+  final sx = centerX + laneX * perspective * screenW * 0.5;
+
+  // Screen Y matching road renderer
   final horizY = screenH * horizon;
   final roadH = screenH - horizY;
   final sy = horizY + roadH * (1 - t);
 
-  final sw = scale * screenW * 0.5;
+  final sw = perspective * screenW * 0.5;
 
-  return ProjectedPoint(x: sx, y: sy, w: sw, scale: scale);
+  return ProjectedPoint(x: sx, y: sy, w: sw, scale: perspective);
 }
